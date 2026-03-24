@@ -1,15 +1,16 @@
 # Claude Code Scripts
 
-Four automation scripts that hook into Claude Code to enforce safety, track sessions, and display context information.
+Six scripts that hook into Claude Code to enforce safety, track sessions, send notifications, and display context information.
 
 ## Dependencies at a glance
 
 | Script | Required | Optional | Setup Notes |
 |--------|----------|----------|-------------|
 | `guard-bash.sh` | `jq` | — | PreToolUse hook; no setup needed |
-| `on-stop.sh` | `jq`, `alerter` | — | `brew install vjeantet/tap/alerter`; requires System Settings → Notifications setup |
-| `on-session-end.sh` | `jq`, `curl` | Anthropic API token in Keychain | SessionEnd hook; runs in background to avoid 60s timeout |
+| `on-permission.sh` | `jq`, `alerter` | — | PreToolUse (all tools) hook; `brew install vjeantet/tap/alerter` |
+| `on-stop.sh` | `jq`, `alerter` | — | Stop hook; `brew install vjeantet/tap/alerter`; requires System Settings → Notifications setup |
 | `on-file-change.sh` | `jq` | — | PostToolUse hook; no setup needed |
+| `on-session-end.sh` | `jq`, `curl` | Anthropic API token in Keychain | SessionEnd hook; runs in background to avoid 60s timeout |
 | `status-line.sh` | `jq`, `git`, `curl` | Anthropic API token in Keychain | Custom status line; 10-min cache at `/tmp/claude-usage-last-good.json` |
 
 ---
@@ -35,8 +36,9 @@ Reads stdin JSON containing the bash command (`tool_input.command`), validates i
    - `ALTER TABLE ... DROP COLUMN`
 
 3. **Destructive filesystem operations**
-   - `rm -rf` (any flag ordering: `-rf`, `-fr`, `--force`, `--recursive`)
-   - Output redirection (`>`) to source/config files (`.ts`, `.js`, `.json`, `.yaml`, `.yml`, `.sh`, `.sql`, `.env`, `.conf`, `.config`)
+   - `rm -rf` (any flag ordering: `-rf`, `-fr`, `-r -f`, `-f -r`, `--force --recursive`, etc.)
+   - `find -delete` or `find -exec rm` (equivalent to recursive deletion on matched files)
+   - Output redirection (`>`) to source/config files (`.ts`, `.tsx`, `.js`, `.jsx`, `.mjs`, `.cjs`, `.json`, `.yaml`, `.yml`, `.toml`, `.sh`, `.bash`, `.zsh`, `.sql`, `.env`, `.conf`, `.config`, `.ini`, `.prisma`, `.py`, `.rb`, `.go`, `.rs`, `.vue`, `.svelte`, `.scss`, `.css`, `.lock`)
    - `chmod 777` (security risk)
 
 4. **Irreversible Git operations**
@@ -61,6 +63,49 @@ Read the last 5 blocks:
 ```bash
 tail -5 ~/.claude/guard-blocked.log | jq '.'
 ```
+
+---
+
+## on-permission.sh
+
+**Type:** PreToolUse hook (all tools)
+**Purpose:** Sends a macOS desktop notification when Claude is about to use a tool that requires permission
+
+Fires before every tool invocation. Skips read-only tools and auto-approved permission modes to avoid noise. For actionable tools, sends a notification so you know a permission prompt is coming.
+
+### Skipped cases
+
+- **Auto-approved modes:** `acceptEdits`, `dontAsk`, `bypassPermissions` — exits 0 silently
+- **Read-only tools:** `Read`, `Glob`, `Grep`, `LS` — exits 0 silently
+
+### Notification content
+
+| Tool | Message |
+|------|---------|
+| `Bash` | `Run: <first 60 chars of command>` |
+| `Edit`, `MultiEdit` | `Edit: <filename>` |
+| `Write` | `Write: <filename>` |
+| Any other tool | `<ToolName>` |
+
+**Title:** `Latuconsinafr x Claude Code`
+**Subtitle:** `🔐 Permission needed [project]`
+**Sound:** Basso
+**Icon:** `~/.claude/claude-icon.png`
+
+### Limitation
+
+The `PreToolUse` hook fires for all tool uses, including those already auto-approved. There is no field in the payload that reliably distinguishes "will prompt user" from "already approved". The script uses `permission_mode` to filter known auto-approve modes, but in `default` mode it cannot tell — so some notifications may fire even when no Y/N prompt appears.
+
+### Setup
+
+```bash
+brew install vjeantet/tap/alerter
+# Then enable alerter in macOS System Settings → Notifications (set to Alerts, not Banners)
+```
+
+### Fallback behavior
+
+If `alerter` is not installed, falls back to `osascript`.
 
 ---
 
