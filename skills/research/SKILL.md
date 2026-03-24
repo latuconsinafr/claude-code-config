@@ -33,10 +33,15 @@ Spawn the applicable agents simultaneously:
 - Note the version the documentation covers
 
 **Agent 2 — Codebase exploration** *(only if the topic relates to existing code)*
-- Search the current codebase for existing patterns related to the topic
-- Find how similar problems have been solved here already
-- Identify constraints from the existing architecture
-- Check `package.json`, `go.mod`, `Cargo.toml`, or equivalent to confirm the stack and versions in use
+
+Spawn the `explorer` agent with:
+```
+Find all existing patterns in this codebase related to: <topic>
+Specifically:
+- How has this problem (or similar problems) been solved here before?
+- What constraints does the existing architecture impose?
+- Check package.json / go.mod / Cargo.toml for the stack and versions in use
+```
 
 **Agent 3 — Pitfalls & edge cases**
 - What are the known gotchas with this approach?

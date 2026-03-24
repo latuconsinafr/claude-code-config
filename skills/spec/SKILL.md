@@ -21,17 +21,21 @@ Extract:
 
 If any of these are unclear → ask one clarifying question before exploring.
 
-## Step 2: Explore the codebase
+## Step 2: Explore the codebase — spawn the `explorer` agent
 
-Use subagents to map the current state:
-- Existing data models relevant to the feature
+Spawn the `explorer` agent to map the current state. Pass:
+```
+Feature being specced: <feature name and description from Step 1>
+Find:
+- Existing data models relevant to this feature
 - Existing API endpoints or service interfaces that will change
 - Authentication and authorization patterns in use
 - Error handling conventions
 - Test patterns and existing coverage in the affected area
-- Any prior attempts at this feature (search git log, comments, TODOs)
+- Any prior attempts at this feature (git log, TODOs, comments, feature flags)
+```
 
-**Constraint inventory:** note any existing constraints the spec must respect — existing API contracts, database schema limitations, third-party integrations, performance SLAs.
+**Constraint inventory:** use the explorer's findings to note existing constraints the spec must respect — existing API contracts, database schema limitations, third-party integrations, performance SLAs.
 
 ## Step 3: Produce the specification
 
@@ -155,9 +159,22 @@ For each: what the question is, who needs to decide, and what the options are.
 
 ---
 
-## Step 4: Confirm the spec
+## Step 4: Validate with the `architect` agent
 
-Present the specification and ask:
+Before presenting the spec to the user, spawn the `architect` agent to review it for design correctness. Pass the full specification with:
+```
+Review this technical specification for:
+- Design correctness — does this approach actually solve the stated problem?
+- Reversibility — which decisions are hard to undo?
+- System implications — failure modes, consistency risks, scale concerns
+- Missing edge cases or security gaps
+```
+
+Incorporate blocking concerns into the spec. Surface non-blocking concerns as open questions.
+
+## Step 5: Confirm the spec
+
+Present the specification (with architect's concerns incorporated) and ask:
 "Does this spec capture the intent correctly? Any sections to add, change, or remove before implementation begins?"
 
 Do not begin implementation until the spec is explicitly approved.

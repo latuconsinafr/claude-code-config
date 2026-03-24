@@ -25,15 +25,20 @@ e.g. feat/SOC-123-add-refresh-tokens
 ```
 Include this in the plan output — the implementer should create this branch before starting Step 1 of the implementation.
 
-## Step 3: Explore the codebase
+## Step 3: Explore the codebase — spawn the `explorer` agent
 
-Use subagents to explore relevant parts without consuming main context:
-- Find existing related code (similar patterns, affected modules)
-- Identify which files will need to change
-- Find tests that cover the affected area
-- Check for existing abstractions to reuse
+Spawn the `explorer` agent to map the relevant codebase area without consuming main context. Pass:
+```
+Task: <description from Step 1>
+Find:
+- Existing related code and similar patterns in the codebase
+- Files that will likely need to change
+- Tests covering the affected area
+- Existing abstractions that could be reused or extended
+- Any prior attempts at this feature (TODOs, partial implementations, comments)
+```
 
-**Divergence check:** If exploration reveals that the codebase is significantly different from what the task description assumes (missing dependencies, conflicting architecture, the feature already partially exists), surface this before writing the plan — do not silently adjust the plan around a mismatch.
+**Divergence check:** If the explorer finds that the codebase is significantly different from what the task assumes (missing dependencies, conflicting architecture, the feature already partially exists), surface this before writing the plan — do not silently adjust the plan around a mismatch.
 
 ## Step 4: Produce the plan
 
@@ -69,7 +74,25 @@ How will we know this is correct?
 Anything that needs a decision before or during implementation.
 If any open question is a blocker, say so explicitly.
 
-## Step 5: Confirm before proceeding
+## Step 5: Architect validation (for complex plans)
+
+If the plan involves any of the following, spawn the `architect` agent to validate the design before presenting it to the user:
+- Changes to core data models or database schema
+- New service boundaries or module interfaces
+- Changes to authentication or authorization logic
+- Anything that will be difficult or expensive to reverse
+
+Pass the draft plan to the `architect` agent with:
+```
+Review this implementation plan for design correctness, reversibility, and system implications.
+Flag anything that will be costly to change later.
+```
+
+Incorporate the architect's blocking concerns into the plan before presenting. Non-blocking concerns can be surfaced as risks.
+
+For straightforward plans (single-file changes, UI tweaks, config updates) — skip this step.
+
+## Step 6: Confirm before proceeding
 
 Present the plan and ask:
 "Does this plan look right? Should I proceed with implementation, adjust anything, or do you have questions?"

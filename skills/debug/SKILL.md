@@ -27,90 +27,62 @@ If critical information is missing, ask for it before proceeding.
 - **Environment-specific** — works locally, fails in CI/staging/production
 - **Build/type error** — compilation failure, type mismatch, import error
 
-## Step 2: Reproduce
+## Step 2: Investigate — spawn the `debugger` agent
 
-Establish a reliable way to reproduce the issue before touching any code.
-```bash
-# Run the failing test
-# Invoke the failing command
-# Check current logs
+Spawn the `debugger` agent to investigate in isolation. This keeps debug artifacts out of the main context and uses the agent's systematic root cause methodology.
+
+Pass the following as the agent task:
+```
+Bug report: <observed behavior from Step 1>
+Expected behavior: <expected behavior from Step 1>
+Issue category: <category from Step 1>
+Error/stack trace (if any): <paste here>
+Reproduce with: <failing test command or steps>
 ```
 
-**If you cannot reproduce it:**
-- Check `git log --oneline -10` — was this broken by a recent commit?
-- Check if the issue is environment-specific (env vars, versions, OS)
-- Add structured logging to the suspected code path and re-run
-- Consider `git bisect` to find the commit that introduced it:
-  ```bash
-  git bisect start
-  git bisect bad HEAD
-  git bisect good <last-known-good-commit>
-  # then test and mark each step
-  ```
-- Do not guess at a fix for an unreproduced issue — state this explicitly.
+The `debugger` agent will return:
+- Root cause with evidence and location (`file:function:line`)
+- Proposed minimal fix
+- Class of bug — other locations in the codebase with the same assumption
+- Detection gap — what would have caught this sooner
 
-## Step 3: Isolate
+**If the agent cannot reproduce the issue:** do not guess. Surface the agent's findings to the user and ask for more context (environment details, additional logs, or a more specific reproduction case).
 
-Narrow down the root cause using the issue category from Step 1:
+## Step 3: Apply the fix
 
-**For all types:**
-- Read the full stack trace — start from the bottom (innermost frame)
-- Find the exact line where behavior diverges from expectation
-- Check recent changes in the affected area: `git log --oneline -10 -- <file>`
-- Check for similar patterns elsewhere in the codebase that work correctly
+Review the root cause and proposed fix from the `debugger` agent.
 
-**For runtime/logic errors:**
-- Trace the data flow from input to the failure point
-- Check for null/undefined at each step
-- Form a testable hypothesis (see below)
-
-**For performance issues:**
-- Identify the slow operation (query, loop, I/O call)
-- Check if it's N+1 (query in a loop), missing index, or blocking I/O
-- Measure before optimizing — don't optimize based on assumption
-
-**For intermittent/race conditions:**
-- Look for shared mutable state
-- Look for async operations without proper awaiting or locking
-- Look for timing-dependent assumptions
-
-**For environment-specific issues:**
-- Diff the environment variables between working and failing environments
-- Check dependency versions (`package.json`, lockfile, language runtime version)
-
-**Structured hypothesis:**
-Before attempting a fix, state your hypothesis explicitly:
-```
-Hypothesis: <what I believe is wrong>
-Evidence: <what in the code/logs supports this>
-Prediction: <what will happen if my hypothesis is correct>
-Test: <how I will verify or falsify this>
-```
-If you cannot fill in all four fields, keep investigating — you don't have a hypothesis yet.
-
-## Step 4: Fix
-
-Make the **minimal change** that fixes the root cause.
-- Do not fix symptoms — fix the cause
+Make the **minimal change** that fixes the root cause — not the symptom:
+- Do not fix multiple things in one commit
 - Do not refactor unrelated code while fixing
 - Add a comment if the fix is non-obvious: `// Fix: <why this is necessary>`
 
+Also check the "class of bug" output — if other locations share the same flawed assumption, fix those too (or note them as follow-up).
+
+## Step 4: Write a regression test — spawn the `qa` agent
+
+Spawn the `qa` agent to write the regression test. Pass:
+```
+Bug fixed: <one-sentence description of the root cause>
+Fix location: <file:line of the fix>
+Reproduce with: <the reproduction case from Step 2>
+```
+
+The test must:
+- Fail with the bug present (verify this before the fix)
+- Pass after the fix
+- Document *why* it exists (describe the bug it prevents in the test name or comment)
+
+A fix without a regression test is incomplete.
+
 ## Step 5: Verify
 
-**a. Write a regression test first** — before confirming the fix works:
 ```bash
-# Write a test that fails with the bug present
-# Then confirm the fix makes it pass
-```
-A fix without a regression test is incomplete. The test documents the bug and prevents recurrence.
-
-**b. Run the test suite:**
-```bash
+# Run the regression test to confirm it passes
 # Run tests covering the affected area
 # Run the full suite to check for regressions
+# Re-run the original reproduction case — confirm the issue is gone
 ```
-
-**c. Re-run the original reproduction case** — confirm the specific issue is gone.
 
 ## Step 6: Output
 
@@ -119,4 +91,4 @@ Summarize:
 - **Fix**: what was changed and the reasoning
 - **Regression test**: what test was added and what it covers
 - **Verification**: test output confirming the fix
-- **Follow-up**: tech debt, missing tests elsewhere, related risk areas to watch
+- **Follow-up**: class-of-bug locations to check, tech debt, missing detection gaps

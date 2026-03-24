@@ -16,56 +16,27 @@ basename $(git rev-parse --show-toplevel 2>/dev/null || pwd)
 git remote get-url origin 2>/dev/null
 ```
 
-## Step 2: Read project documentation
+## Step 2: Map the project — spawn the `explorer` agent
 
-Find and read in priority order:
-
-**Primary docs:**
-```bash
-find . -maxdepth 2 -name "CLAUDE.md" -o -name "README.md" -o -name "README.rst" \
-  -o -name "ARCHITECTURE.md" -o -name "CONTRIBUTING.md" 2>/dev/null | \
-  grep -v node_modules | head -10
+Spawn the `explorer` agent to investigate the project's documentation and structure. Pass:
 ```
+Project directory: <pwd from Step 1>
+Investigate and return:
 
-**Architecture / design docs:**
-```bash
-find . -maxdepth 3 -type d -name "docs" -o -name "doc" -o -name "documentation" \
-  2>/dev/null | grep -v node_modules | head -3
-```
-Read any `architecture.*`, `overview.*`, `design.*`, `adr/` files found.
+1. Documentation: read CLAUDE.md, README.md/rst, ARCHITECTURE.md, CONTRIBUTING.md
+   (maxdepth 2). Also read any architecture.*, overview.*, design.*, or adr/ files
+   found in docs/ subdirectories.
 
-**Environment setup:**
-```bash
-find . -maxdepth 2 -name ".env.example" -o -name ".env.sample" \
-  -o -name "Makefile" -o -name "justfile" 2>/dev/null | grep -v node_modules
-```
+2. Environment setup: find .env.example, .env.sample, Makefile, justfile (maxdepth 2).
+   Note any required env vars or setup steps.
 
-## Step 3: Understand the stack
+3. Stack: detect primary language and runtime from package.json / go.mod / Cargo.toml /
+   pyproject.toml. Extract: language, framework, database(s), test runner, key dependencies.
 
-```bash
-# Detect language and framework
-cat package.json 2>/dev/null | jq '{name, version, main, scripts, dependencies: (.dependencies // {} | keys), devDependencies: (.devDependencies // {} | keys | map(select(test("jest|vitest|eslint|prettier|typescript"))))}'
-cat go.mod 2>/dev/null | head -20
-cat Cargo.toml 2>/dev/null | head -20
-cat pyproject.toml requirements.txt 2>/dev/null | head -20
-```
+4. Project structure: list top-level directories (maxdepth 2), excluding node_modules,
+   .git, dist, build, coverage, .next. Find entry points: main.*, index.*, app.*, server.*
 
-Extract:
-- Primary language and runtime version
-- Main framework (Express, NestJS, FastAPI, Gin, etc.)
-- Database(s) in use
-- Test framework
-- Key dependencies
-
-## Step 4: Understand the project structure
-
-```bash
-# Top-level structure
-find . -maxdepth 2 -type d | grep -v "node_modules\|\.git\|dist\|build\|coverage\|\.next" | sort
-
-# Entry points
-find . -maxdepth 3 -name "main.*" -o -name "index.*" -o -name "app.*" -o -name "server.*" \
-  2>/dev/null | grep -v node_modules | grep -v dist | head -10
+Return a structured summary of all findings.
 ```
 
 ## Step 5: Recent activity
