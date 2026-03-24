@@ -56,12 +56,15 @@ Based on the diff — if the diff contains changes that span multiple types (e.g
 Types:
 - `feat` — new feature or behavior
 - `fix` — bug fix
+- `security` — security fix or hardening (vulnerability patch, auth fix, input sanitization)
 - `refactor` — restructure without behavior change
 - `test` — adding or updating tests
 - `chore` — deps, config, tooling, build
 - `docs` — documentation only
 - `perf` — performance improvement
 - `ci` — CI/CD pipeline changes
+- `revert` — revert a previous commit
+- `build` — build system or external dependency changes
 
 ## Step 4: Detect breaking changes
 
@@ -71,7 +74,7 @@ Scan the diff for:
 - Removed API endpoints or changed response shapes
 - Renamed environment variables or config keys
 
-If any found → the commit requires a `BREAKING CHANGE:` footer (conventional commits spec). Note this for Step 5.
+If any found → mark as breaking change. This affects both the subject line (`!`) and requires a `BREAKING CHANGE:` footer. Note this for Step 6.
 
 ## Step 5: Infer scope dynamically
 
@@ -88,15 +91,20 @@ Never use generic scopes like `src`, `lib`, `utils` — go one level deeper.
 
 ## Step 6: Write the commit message
 
-**Subject line:**
+**Subject line format:**
 ```
-<type>(<scope>): <TICKET> <description>
+<type>(<scope>): <TICKET> <description>       ← normal change
+<type>(<scope>)!: <TICKET> <description>      ← breaking change with scope
+<type>!: <TICKET> <description>               ← breaking change, no scope
 ```
+
+Rules:
+- The `!` goes between the scope (or type) and the `:` — signals breaking change at a glance in git log
 - Max 72 characters total
 - Description: lowercase, imperative mood ("fix" not "fixes" or "fixed")
 - Ticket immediately before description, no punctuation between them
 - If no ticket: omit it — `feat(auth): add refresh token rotation`
-- If no clear scope: omit it — `fix: SOC-123 handle null response`
+- If no clear scope: omit it — `fix: GH-123 handle null response`
 
 **Body (include for non-trivial changes):**
 ```
@@ -105,7 +113,7 @@ Never use generic scopes like `src`, `lib`, `utils` — go one level deeper.
 <why this change was needed — the problem it solves, not a restatement of the diff>
 ```
 
-**Breaking change footer (required if Step 4 detected breaking changes):**
+**Breaking change footer (required when `!` is used — describes what broke and migration path):**
 ```
 
 BREAKING CHANGE: <what broke and what callers need to do instead>
@@ -113,21 +121,28 @@ BREAKING CHANGE: <what broke and what callers need to do instead>
 
 Examples:
 ```
-feat(auth): SOC-123 add refresh token rotation
+feat(auth): GH-123 add refresh token rotation
 
 Previously tokens expired with no renewal path, causing silent session
 drops after 1 hour.
 
 feat(api): GH-42 add pagination to scan results endpoint
 
-fix(scanner): handle null result from external scanner API
+fix(scanner): GH-99 handle null result from external scanner API
+
+security(auth): GH-201 enforce rate limiting on login endpoint
 
 chore(deps): upgrade knex to v3
 
-refactor!: SOC-456 rename UserContext to OrgContext
+refactor(auth)!: GH-456 rename UserContext to OrgContext
 
 BREAKING CHANGE: UserContext is now OrgContext in all imports. Update
 all `import { UserContext }` to `import { OrgContext }`.
+
+feat!: GH-789 replace REST with GraphQL API
+
+BREAKING CHANGE: All REST endpoints removed. Migrate to /graphql.
+See migration guide in docs/graphql-migration.md.
 ```
 
 ## Step 7: Show and confirm
