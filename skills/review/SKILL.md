@@ -1,6 +1,6 @@
 ---
 name: review
-description: Review staged or recent changes as a principal engineer. Focuses on correctness, edge cases, and logic flaws before committing or opening a PR.
+description: Use before committing or opening a pull request — reviews staged changes as a principal engineer for correctness, edge cases, and logic flaws. Always invoke this before creating a PR.
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
@@ -32,11 +32,6 @@ Read enough surrounding code to understand the intent — not just the diff line
 - What happens at the boundaries — first item, last item, max value?
 - What happens under concurrent requests?
 - What happens if an external call fails mid-operation?
-
-### Multi-tenant safety (always check in this codebase)
-- Does any query touch data across org boundaries?
-- Is org context properly scoped in every DB operation?
-- Could a tenant access another tenant's data through this change?
 
 ### Logic & design
 - Is the logic overly complex for what it does?

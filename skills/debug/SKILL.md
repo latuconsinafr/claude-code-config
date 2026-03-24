@@ -1,6 +1,6 @@
 ---
 name: debug
-description: Systematically debug a bug, error, or unexpected behavior. Follows a structured reproduce-isolate-fix-verify cycle.
+description: Use when you encounter a bug, error, or unexpected behavior during a task — follows a reproduce → isolate → fix → verify cycle. Invoke this instead of guessing at a fix.
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
@@ -34,12 +34,6 @@ Narrow down the root cause:
 - Check recent changes in the affected area: `git log --oneline -10 -- <file>`
 - Check for similar patterns elsewhere in the codebase that work correctly
 - Form a hypothesis: "I believe the issue is X because Y"
-
-For database/query issues (common in this stack):
-- Check if the query has correct org scoping
-- Check if RLS policies are applied
-- Check for N+1 patterns or missing joins
-- Log the raw SQL if possible
 
 ## Step 4: Fix
 Make the minimal change that fixes the root cause.

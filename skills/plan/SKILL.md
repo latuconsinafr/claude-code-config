@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Think through a feature, task, or architectural change before writing any code. Produces a structured implementation plan with risks and open questions.
+description: Use before writing any code for a new feature, task, or significant change — produces a structured implementation plan with affected files, ordered steps, risks, and open questions. Always invoke this at the start of any non-trivial implementation task and wait for explicit approval before writing code.
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
@@ -41,7 +41,6 @@ For each step: what changes, and why in that order.
 ### ⚠️ Risks & edge cases
 - What could go wrong?
 - What edge cases need special handling?
-- Any multi-tenant / RLS implications?
 - Any migration or schema changes needed?
 - Any breaking changes for existing consumers?
 

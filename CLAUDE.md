@@ -119,6 +119,17 @@ OS: macOS, Shell: zsh
 - If something in my approach is wrong or suboptimal, say so directly
 - Ask clarifying questions one at a time, not all at once
 
+# Autonomous Skill Invocation
+When you autonomously decide to take the following actions during a task, always invoke the corresponding skill — do not perform the action directly:
+
+- **Before implementing any new feature, task, or significant change** → invoke `/plan` first and wait for explicit approval before writing any code. Exception: user explicitly says "just do it", "skip the plan", or "start coding".
+- **When you need to create a git commit** → invoke `/commit` instead of running `git commit` directly. The skill will generate the message, detect the ticket, and ask for confirmation.
+- **Before opening a pull request** → invoke `/review` first to review the staged changes, then invoke `/pr` to create the PR. Never run `gh pr create` directly.
+- **When you encounter a bug, error, test failure, or unexpected behavior** → invoke `/debug` instead of guessing at a fix.
+- **When a technology choice or approach is unclear** → invoke `/research` before proceeding.
+
+If a skill needs information from you (e.g. `/commit` needs a ticket number, `/pr` needs semver level), stop and ask — do not skip the step or make up values.
+
 # MCP Usage
 - When asked about any library, framework, or API — always use context7 to get current docs before answering
 - For complex multi-step problems, architectural decisions, or debugging — use sequential thinking

@@ -1,6 +1,6 @@
 ---
 name: research
-description: Research a technical problem, architectural question, or unfamiliar topic by spawning parallel subagents across web docs, codebase, and best practices. Produces a structured findings report.
+description: Use when you need to investigate an unfamiliar library, framework, architectural question, or technical decision — spawns parallel subagents across official docs, codebase patterns, and known pitfalls. Invoke before making technology choices or when the right approach is unclear.
 allowed-tools: Bash, Read, Grep, Glob
 ---
 
@@ -42,7 +42,7 @@ Two sentences: what is the answer / recommendation?
 Bullet points from each research angle — source each claim.
 
 ### ⚡ Recommendation
-For this specific codebase and stack (NestJS, TypeScript, PostgreSQL, multi-tenant):
+For this specific codebase and stack:
 What is the right approach?
 
 ### ⚠️ Pitfalls to avoid

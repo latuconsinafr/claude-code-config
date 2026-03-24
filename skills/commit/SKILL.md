@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Generate a conventional commit message from staged changes. Format is feat(scope): TICKET-123 description. Supports both Jira (SOC-123) and GitHub issues (GH-42). Scope is inferred dynamically from changed files.
+description: Use when you are about to create a git commit — generates a conventional commit message with type(scope): TICKET description format. Auto-detects ticket from branch name or arguments. Always use this instead of running git commit directly.
 allowed-tools: Bash, Read
 ---
 

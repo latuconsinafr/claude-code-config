@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Generate a GitHub pull request with semver-prefixed title and structured description. Format is [PATCH/MINOR/MAJOR] TICKET: description. Supports custom PR templates via @ file reference.
+description: Use when you are about to open a GitHub pull request — generates a semver-prefixed title ([PATCH/MINOR/MAJOR] TICKET: description) and structured body from commits. Always invoke this instead of running gh pr create directly.
 allowed-tools: Bash, Read, Grep
 ---
 
