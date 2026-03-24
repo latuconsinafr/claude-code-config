@@ -54,7 +54,7 @@ if command -v alerter &>/dev/null; then
     --group    "claude-permission" \
     &>/dev/null &
 else
-  osascript -e "display notification \"$MSG\" with title \"Latuconsinafr x Claude Code\" subtitle \"🔐 Permission needed\" sound name \"Basso\""
+  osascript -e "display notification \"$MSG\" with title \"Latuconsinafr x Claude Code\" subtitle \"🔐 Permission needed [$PROJECT]\" sound name \"Basso\""
 fi
 
 exit 0
