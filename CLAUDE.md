@@ -25,13 +25,20 @@ Invoked as slash commands. Each skill lives in `skills/<name>/SKILL.md`.
 
 | Skill | Purpose |
 |-------|---------|
-| `/commit` | Conventional commit message from staged changes (`feat(scope): TICKET description`) |
+| `/commit` | Conventional commit message from staged changes (`feat(scope)!: TICKET description`) |
 | `/plan` | Structured implementation plan before writing code |
-| `/review` | Principal-engineer code review of staged/recent changes |
+| `/review` | Principal-engineer code review — correctness, security, performance, test coverage |
 | `/pr` | GitHub PR with semver-prefixed title (`[PATCH/MINOR/MAJOR] TICKET: desc`) |
-| `/debug` | Reproduce → isolate → fix → verify debugging cycle |
+| `/debug` | Reproduce → isolate → structured hypothesis → fix → regression test |
 | `/research` | Parallel subagent research across docs, codebase, and pitfalls |
-| `/simplify` | Reduce complexity — remove dead code and unnecessary abstractions |
+| `/simplify` | Reduce complexity — blast radius check, test baseline, per-change verification |
+| `/issue` | Read GitHub/Jira issue → explore codebase → implementation plan |
+| `/audit-deps` | Scan all lockfiles for CVEs, outdated majors, and license violations |
+| `/tech-debt` | Surface TODOs, deprecated APIs, dead code with age and priority |
+| `/security` | Dedicated OWASP Top 10 security review of staged/changed files |
+| `/spec` | Full technical specification — data model, API contract, edge cases |
+| `/env-audit` | Audit all env var references vs. sources across code, Docker, CI, config |
+| `/onboard` | Session-start context primer — architecture, recent activity, open work |
 
 To add a new skill: create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `allowed-tools`) and a markdown prompt body using `$ARGUMENTS` for user input.
 
