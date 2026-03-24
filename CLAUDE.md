@@ -129,9 +129,12 @@ OS: macOS, Shell: zsh
 # Autonomous Skill Invocation
 When you autonomously decide to take the following actions during a task, always invoke the corresponding skill — do not perform the action directly:
 
+- **At the start of a session on an unfamiliar or returning project** → invoke `/onboard` before doing anything else to prime context.
+- **When starting work from a ticket or issue number** → invoke `/issue` instead of `/plan`. It fetches the issue, explores the codebase, and produces the plan in one step.
+- **Before implementing a complex, cross-cutting, or high-stakes feature** → invoke `/spec` first to produce a technical specification, then `/plan` for ordered implementation steps. Use `/plan` alone for straightforward tasks.
 - **Before implementing any new feature, task, or significant change** → invoke `/plan` first and wait for explicit approval before writing any code. Exception: user explicitly says "just do it", "skip the plan", or "start coding".
 - **When you need to create a git commit** → invoke `/commit` instead of running `git commit` directly. The skill will generate the message, detect the ticket, and ask for confirmation.
-- **Before opening a pull request** → invoke `/review` first to review the staged changes, then invoke `/pr` to create the PR. Never run `gh pr create` directly.
+- **Before opening a pull request** → invoke `/review` first to review staged changes, then invoke `/pr` to create the PR. For security-sensitive changes (auth, permissions, data handling), also invoke `/security` before `/pr`. Never run `gh pr create` directly.
 - **When you encounter a bug, error, test failure, or unexpected behavior** → invoke `/debug` instead of guessing at a fix.
 - **When a technology choice or approach is unclear** → invoke `/research` before proceeding.
 
