@@ -64,6 +64,28 @@
     "type": "command",
     "command": "~/.claude/scripts/status-line.sh"
   },
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git remote*)",
+      "Bash(git stash list*)",
+      "Bash(git rev-parse*)",
+      "Bash(git describe*)",
+      "Bash(npm test*)",
+      "Bash(npx jest*)",
+      "Bash(npx vitest*)",
+      "Bash(go test*)",
+      "Bash(pytest*)",
+      "Bash(cargo test*)",
+      "Bash(bun test*)",
+      "Bash(tsc --noEmit*)",
+      "Bash(npm run build*)"
+    ]
+  },
   "enabledPlugins": {
     "skill-creator@claude-plugins-official": true
   },

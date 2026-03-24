@@ -56,8 +56,37 @@ Subagents invoked via the `Agent` tool. Each defined in `agents/<name>.md` with 
 | `explorer` | haiku | Read-only codebase investigation — structure, usage, context gathering |
 | `docs` | haiku | Documentation — keep docs in sync, capture decisions (ADRs), explain why |
 
-### Memory System (`projects/`)
-Persistent memory lives in `projects/<encoded-path>/memory/` with a `MEMORY.md` index. Files use YAML frontmatter with `name`, `description`, and `type` (user/feedback/project/reference). Always check `MEMORY.md` at the start of sessions relevant to a known project.
+### Memory System (dual)
+
+Two complementary memory systems are active. Use both — they serve different purposes.
+
+**File-based** (`projects/<encoded-path>/memory/`)
+- Human-readable markdown files with a `MEMORY.md` index
+- YAML frontmatter: `name`, `description`, `type` (user/feedback/project/reference)
+- Best for: behavioral rules with **why** (feedback), rich project context, reference pointers, user profile nuances
+- Write here when the memory needs explanation to be applied correctly
+
+**MCP memory** (`mcp__memory__*` tools)
+- Structured knowledge graph: entities, observations, and relations
+- Best for: named facts that need fast recall (stack, key people, decisions, relationships between things)
+- Write here when the memory is a fact about a named entity — person, project, technology, concept
+
+**Decision table — which system to write to:**
+
+| What you learned | Write to |
+|-----------------|----------|
+| Behavioral correction ("don't do X because Y") | File-based — needs the WHY |
+| Project tech stack, database, test runner | MCP — structured entity fact |
+| Where something is in an external system | File-based (reference type) |
+| Relationship between two things ("Project X uses PostgreSQL") | MCP — entity relation |
+| User's expertise level or communication preference | Both — MCP entity for quick fact, file-based for nuance |
+| Architectural decision + reasoning | Both — MCP observation + file-based project type |
+| Deadline or milestone | MCP — structured, time-bound fact |
+| Rule that requires context to apply correctly | File-based only |
+
+**At the start of each session:**
+1. Check `MEMORY.md` in file-based system for instructions and context
+2. Run `mcp__memory__search_nodes` for entities related to the current project or task
 
 ## Testing Scripts
 
@@ -145,5 +174,7 @@ If a skill needs information from you (e.g. `/commit` needs a ticket number, `/p
 # MCP Usage
 - When asked about any library, framework, or API — always use context7 to get current docs before answering
 - For complex multi-step problems, architectural decisions, or debugging — use sequential thinking
-- When I share important project facts, schemas, or decisions — store them in memory
-- At the start of each session — check memory for relevant context about the current project
+- When you share a behavioral rule or preference → write to **file-based memory** (needs the WHY to apply correctly)
+- When you share a project fact, stack detail, schema, or relationship → write to **MCP memory** as a structured entity/observation
+- When you share something that is both a fact and has nuance → write to **both**
+- At the start of each session — check `MEMORY.md` (file-based) AND run `mcp__memory__search_nodes` for the current project/task
