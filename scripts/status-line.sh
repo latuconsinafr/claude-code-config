@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ~/.claude/scripts/statusline.sh
+# ~/.claude/scripts/status-line.sh
 # Claude Code statusline — Nerd Font icons + quota usage
 # Requires: jq, git, curl, macOS Keychain
 
