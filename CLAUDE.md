@@ -1,0 +1,126 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+This is Farista's personal Claude Code configuration directory (`~/.claude`). It contains hooks, custom skills, custom agents, and a memory system that extend Claude Code's behavior globally.
+
+## Directory Architecture
+
+### Hooks (`scripts/`)
+Five active hooks configured in `settings.json`:
+
+- **`guard-bash.sh`** — `PreToolUse` on `Bash` — blocks dangerous commands before execution: credential file access, unfiltered `DELETE`/`UPDATE`/`DROP` SQL, `rm -rf`, `find -delete`, redirect truncation of source files, `chmod 777`, `git push --force`, `git reset --hard`, and `npm publish`. Exit code `2` feeds the block reason back to Claude. Blocked attempts are logged to `~/.claude/guard-blocked.log`.
+- **`on-permission.sh`** — `PreToolUse` on all tools — sends a macOS desktop notification when Claude is about to use a tool that requires permission. Skips read-only tools (`Read`, `Glob`, `Grep`, `LS`) and auto-approved permission modes.
+- **`on-stop.sh`** — `Stop` hook — sends a macOS desktop notification (via `alerter` or `osascript`) with inferred stop reason (task complete vs. input needed), turn/tool-call stats, and a plain-text summary of the last assistant message.
+- **`on-file-change.sh`** — `PostToolUse` on `Edit|Write|MultiEdit` — appends each modified file path to `/tmp/claude-files-{session_id}.txt` for pickup by `on-session-end.sh`.
+- **`on-session-end.sh`** — `SessionEnd` hook — logs session stats (message count, compaction count, modified files) and a Haiku-generated AI summary to `~/.claude/session-log.jsonl`. Runs entirely in a background subshell to avoid the 60s hook timeout.
+
+### Status Line (`scripts/`)
+Since the status line using custom scripts as well, it is placed inside the same directory as other scripts (e.g. hooks scripts), and also configured in `settings.json`:
+
+- **`status-line.sh`** — Custom status line — displays user, directory, git branch, model, context usage %, compaction count, and Claude quota (5h/7d) with ANSI color thresholds. Quota is fetched from the Anthropic API via OAuth token from macOS Keychain and cached at `/tmp/claude-usage-last-good.json` for 10 minutes.
+
+### Custom Skills (`skills/`)
+Invoked as slash commands. Each skill lives in `skills/<name>/SKILL.md`.
+
+| Skill | Purpose |
+|-------|---------|
+| `/commit` | Conventional commit message from staged changes (`feat(scope): TICKET description`) |
+| `/plan` | Structured implementation plan before writing code |
+| `/review` | Principal-engineer code review of staged/recent changes |
+| `/pr` | GitHub PR with semver-prefixed title (`[PATCH/MINOR/MAJOR] TICKET: desc`) |
+| `/debug` | Reproduce → isolate → fix → verify debugging cycle |
+| `/research` | Parallel subagent research across docs, codebase, and pitfalls |
+| `/simplify` | Reduce complexity — remove dead code and unnecessary abstractions |
+
+To add a new skill: create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `allowed-tools`) and a markdown prompt body using `$ARGUMENTS` for user input.
+
+### Custom Agents (`agents/`)
+Subagents invoked via the `Agent` tool. Each defined in `agents/<name>.md` with frontmatter specifying `tools`, `model`, and `disable-model-invocation: true`.
+
+| Agent | Model | Purpose |
+|-------|-------|---------|
+| `architect` | opus | Design review before implementation |
+| `debugger` | sonnet | Root cause analysis in isolation |
+| `reviewer` | sonnet | Full code review (correctness, security, perf) |
+| `qa` | sonnet | Adversarial testing and edge case discovery |
+| `explorer` | haiku | Read-only codebase investigation |
+| `docs` | haiku | Keep documentation in sync with code |
+
+### Memory System (`projects/`)
+Persistent memory lives in `projects/<encoded-path>/memory/` with a `MEMORY.md` index. Files use YAML frontmatter with `name`, `description`, and `type` (user/feedback/project/reference). Always check `MEMORY.md` at the start of sessions relevant to a known project.
+
+## Testing Scripts
+
+Scripts have no automated test suite. Manual verification:
+```bash
+# Test guard-bash hook (should block)
+echo '{"tool_input":{"command":"rm -rf /"}}' | ~/.claude/scripts/guard-bash.sh
+
+# Test status line rendering
+echo '{"workspace":{"current_dir":"'"$PWD"'"},"model":{"display_name":"Sonnet"},"context_window":{"used_percentage":42}}' | ~/.claude/scripts/status-line.sh
+```
+
+Scripts require: `jq`, `git`, `curl`, `alerter` (`brew install vjeantet/tap/alerter` — preferred for macOS Sequoia; falls back to `osascript`).
+
+---
+
+# Developer Identity
+Name: Farista
+OS: macOS, Shell: zsh
+
+# Engineering Principles
+- Prefer explicit over implicit — no hidden behavior, no magic defaults
+- Follow DRY, KISS, and YAGNI — don't build what isn't needed yet
+- Write pure functions where possible — avoid side effects and shared mutable state
+- Single responsibility — one function, one purpose, no flag parameters that switch logic
+- Check if logic already exists before writing new code
+- Raise errors explicitly — never silently ignore failures
+- Use specific error types that clearly indicate what went wrong
+- Error messages must be clear, actionable, and include context
+
+# Change Discipline
+- Before making changes: explain what you're about to change and why
+- After making changes: summarize what was changed, what was not, and any trade-offs made
+- Prefer small, focused, reviewable changes over large sweeping refactors
+- If a change has side effects on other parts of the codebase, call them out explicitly
+- Never fix a symptom without identifying and addressing the root cause
+- When multiple approaches exist, present the options with trade-offs before proceeding
+
+# Uncertainty & Assumptions
+- Never assume — if you are uncertain about intent, requirements, or behaviour, ask before proceeding
+- Never hallucinate APIs, function signatures, file paths, or library behaviour — verify by reading the actual code or files first
+- If you need external information you don't have, ask permission before searching the web
+- State your assumptions explicitly before acting on them — do not silently fill gaps
+- If a task is ambiguous, ask one clarifying question before starting — not after
+- Prefer doing less and confirming over doing more and being wrong
+
+# Safety Rules
+- Always create a new branch before making changes — never work directly on main/master
+- Never force push to a shared branch
+- Never reset --hard without explicit confirmation
+- Never run destructive operations (drop, truncate, delete without filter, rm -rf) autonomously — always ask first
+- Never read, write, or expose secret files (.env, credentials, keys) under any circumstance
+- When in doubt about a destructive action, stop and ask
+
+# Verification
+- Always verify changes work — run tests, type checks, or build after edits
+- Do not assume a change is correct — confirm with a feedback loop
+- If no test exists for what you changed, flag it
+
+# Context Management
+- Use subagents to explore large parts of the codebase — keep the main context clean
+- When compacting, always preserve: current task goal, list of modified files, pending decisions
+- Start complex multi-file tasks in plan mode before executing
+
+# Communication Style
+- Be concise — no preamble, no filler phrases, no unnecessary affirmations
+- Explain only what is non-obvious — skip restating what was just said
+- If something in my approach is wrong or suboptimal, say so directly
+- Ask clarifying questions one at a time, not all at once
+
+# MCP Usage
+- When asked about any library, framework, or API — always use context7 to get current docs before answering
+- For complex multi-step problems, architectural decisions, or debugging — use sequential thinking
+- When I share important project facts, schemas, or decisions — store them in memory
+- At the start of each session — check memory for relevant context about the current project

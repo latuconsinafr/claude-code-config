@@ -1,0 +1,33 @@
+# ── Machine-specific runtime data ─────────────────────────────────────────────
+history.jsonl
+session-log.jsonl
+session-log.jsonl.*
+guard-blocked.log
+stats-cache.json
+mcp-needs-auth-cache.json
+
+# ── Claude Code internal directories ──────────────────────────────────────────
+backups/
+cache/
+/debug/
+file-history/
+image-cache/
+paste-cache/
+plugins/
+session-env/
+sessions/
+shell-snapshots/
+statsig/
+tasks/
+telemetry/
+todos/
+plans/
+
+# ── Memory system (conversation context — potentially sensitive) ───────────────
+projects/
+
+# ── Compiled artifacts ────────────────────────────────────────────────────────
+notifier.app/
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+.DS_Store
