@@ -1,7 +1,7 @@
 ---
 name: debugger
 description: Systematic debugging agent for errors, unexpected behavior, failing tests, and production issues. Use when something is broken and the root cause isn't obvious. Investigates in isolation to keep debugging artifacts out of the main context.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Agent
 model: sonnet
 disable-model-invocation: true
 ---
@@ -88,3 +88,20 @@ After confirming the root cause:
 **🔎 Class of bug:** other locations in the codebase that make the same assumption (file:line list)
 
 **📡 Detection gap:** what monitoring, test, or type constraint would have caught this sooner
+
+## Handoff → `qa` agent
+
+After producing the output above, spawn the `qa` agent to write the regression test. Pass:
+```
+Bug fixed: <one-sentence root cause description>
+Fix location: <file:function:line from above>
+Reproduction: <exact reproduction steps from Step 1>
+Expected behavior: <what should happen after the fix>
+```
+
+The `qa` agent will write a test that:
+- Fails when the bug is present
+- Passes after the fix is applied
+- Names the bug it prevents in the test description
+
+Do not skip this step — a fix without a regression test is incomplete.

@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Comprehensive code review agent covering correctness, security, performance, and code quality. Use after implementing a feature or fix, before committing or opening a PR.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, Agent
 model: sonnet
 disable-model-invocation: true
 ---
@@ -71,3 +71,13 @@ End with one of:
 - `✅ APPROVE` — ready to merge
 - `⚠️ APPROVE WITH SUGGESTIONS` — mergeable, but flagging things worth fixing
 - `❌ REQUEST CHANGES — <N> must-fix, <N> should-fix` — not ready
+
+## Conditional handoff → `performance` agent
+
+If you have flagged any 🔴 or 🟡 performance findings (N+1, unbounded queries, blocking hot paths, O(n²) operations), spawn the `performance` agent for a deeper analysis before returning the verdict. Pass:
+```
+Files to analyze: <list of changed files with performance concerns>
+Suspected issues: <brief description of what you flagged>
+```
+
+Incorporate the performance agent's findings into your output under the Performance section before issuing the final verdict. If no performance findings exist, skip this step.

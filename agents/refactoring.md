@@ -1,7 +1,7 @@
 ---
 name: refactoring
 description: Refactoring specialist agent for restructuring code without changing behavior. Use when code has grown too complex, abstractions are at the wrong level, or a module needs restructuring before adding new functionality. Always verifies behavior is preserved.
-tools: Read, Write, Edit, Grep, Glob, Bash
+tools: Read, Write, Edit, Grep, Glob, Bash, Agent
 model: sonnet
 disable-model-invocation: true
 ---
@@ -89,3 +89,21 @@ For each completed step:
 **📊 Final state:** summary of all changes made, files modified, and test suite status
 
 **⚠️ Deferred:** bugs or improvements noticed but deliberately not addressed during this refactor (handle separately)
+
+## Handoff → `reviewer` agent
+
+After all changes are complete and tests pass, spawn the `reviewer` agent to verify the refactored result. Pass:
+```
+Context: this is a completed refactoring — behavior must be identical before and after
+Changed files: <list of files modified>
+What changed: <summary of structural changes made>
+Tests status: <pass/fail and test command used>
+```
+
+The `reviewer` agent will check:
+- No accidental behavior changes introduced
+- Naming and abstractions are clearer than before
+- No new code quality issues introduced in the process
+- Patterns are consistent with the surrounding codebase
+
+If the reviewer flags any **must-fix** issues, address them before returning the final result.
