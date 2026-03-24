@@ -47,12 +47,14 @@ Subagents invoked via the `Agent` tool. Each defined in `agents/<name>.md` with 
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
-| `architect` | opus | Design review before implementation |
-| `debugger` | sonnet | Root cause analysis in isolation |
-| `reviewer` | sonnet | Full code review (correctness, security, perf) |
-| `qa` | sonnet | Adversarial testing and edge case discovery |
-| `explorer` | haiku | Read-only codebase investigation |
-| `docs` | haiku | Keep documentation in sync with code |
+| `architect` | opus | Design review — reversibility, system implications, trade-off surface |
+| `debugger` | sonnet | Root cause analysis — reproduce → isolate → class-of-bug elimination |
+| `reviewer` | sonnet | Code review — correctness, security, pattern precedent, PE lens |
+| `qa` | sonnet | Adversarial testing — risk-based strategy, edge cases, behavior verification |
+| `refactoring` | sonnet | Structured refactoring — blast radius check, behavior preservation, one step at a time |
+| `performance` | haiku | Bottleneck analysis — N+1 queries, hot paths, algorithmic complexity |
+| `explorer` | haiku | Read-only codebase investigation — structure, usage, context gathering |
+| `docs` | haiku | Documentation — keep docs in sync, capture decisions (ADRs), explain why |
 
 ### Memory System (`projects/`)
 Persistent memory lives in `projects/<encoded-path>/memory/` with a `MEMORY.md` index. Files use YAML frontmatter with `name`, `description`, and `type` (user/feedback/project/reference). Always check `MEMORY.md` at the start of sessions relevant to a known project.
