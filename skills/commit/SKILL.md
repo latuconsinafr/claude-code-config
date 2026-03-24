@@ -10,12 +10,26 @@ Generate a conventional commit message for staged changes.
 
 **Target format:** `<type>(<scope>): <TICKET> <description>`
 
-## Step 1: Check for staged changes
+## Step 0: Precondition checks
+
 ```bash
+git status --short
 git diff --staged --stat
-git diff --staged
 ```
-If nothing staged → tell the user: "No staged changes. Run `git add` first."
+
+- If this is a merge commit (`git log --merges -1 HEAD` returns the current HEAD) → skip conventional format, use `merge: <branch> into <branch>` and exit.
+- If nothing is staged → offer: "Nothing staged. Should I run `git add -p` to interactively stage changes, or `git add .` to stage everything?"
+- If `git diff --staged` and `git diff` differ significantly (i.e., there are unstaged changes alongside staged changes) → warn: "You have unstaged changes alongside staged ones. The commit message will only reflect the staged portion — is that intended?"
+
+## Step 1: Dirty-diff check
+
+Scan `git diff --staged` for:
+- `console.log`, `console.error`, `console.warn`, `debugger` statements
+- Hardcoded secrets patterns: API keys, tokens, passwords in strings (`key=`, `secret=`, `password=`, `Bearer `, `sk-`, etc.)
+- `TODO`, `FIXME`, `HACK`, `XXX` comments introduced by this diff (not pre-existing)
+- Commented-out code blocks
+
+If any found → list them and ask: "These were found in the staged diff — intentional or should they be cleaned up first?"
 
 ## Step 2: Detect ticket number
 
@@ -36,7 +50,10 @@ Extract ticket using these patterns:
 Ask: "What's the ticket number? (e.g. SOC-123 or GH-42, or type 'none' to skip)"
 
 ## Step 3: Determine commit type
-Based on the diff:
+
+Based on the diff — if the diff contains changes that span multiple types (e.g., both a new feature and a bug fix), **ask** rather than picking one: "This diff looks like it contains both a feature and a fix — should this be split into two commits, or which type best represents the primary intent?"
+
+Types:
 - `feat` — new feature or behavior
 - `fix` — bug fix
 - `refactor` — restructure without behavior change
@@ -46,24 +63,30 @@ Based on the diff:
 - `perf` — performance improvement
 - `ci` — CI/CD pipeline changes
 
-## Step 4: Infer scope dynamically
+## Step 4: Detect breaking changes
+
+Scan the diff for:
+- Removed or renamed exported functions, classes, or types
+- Changed function signatures (parameter removed, type changed)
+- Removed API endpoints or changed response shapes
+- Renamed environment variables or config keys
+
+If any found → the commit requires a `BREAKING CHANGE:` footer (conventional commits spec). Note this for Step 5.
+
+## Step 5: Infer scope dynamically
 
 Look at the staged file paths from `git diff --staged --stat` and infer the most meaningful scope:
 
 - If all changed files share a common directory → use that directory name
   - `src/auth/...` → `auth`
   - `services/scanner/...` → `scanner`
-  - `packages/api/...` → `api`
 - If files span multiple directories → use the closest common parent
-  - `src/auth/guard.ts` + `src/auth/token.ts` → `auth`
-  - `src/auth/...` + `src/scan/...` → no single scope, omit or use the primary one
 - If files are config/root level → use `config` or omit scope entirely
 - If it's a single file change → use the file's parent directory name
 
-The scope should reflect **what part of the system changed**, not the file type.
 Never use generic scopes like `src`, `lib`, `utils` — go one level deeper.
 
-## Step 5: Write the commit message
+## Step 6: Write the commit message
 
 **Subject line:**
 ```
@@ -75,25 +98,42 @@ Never use generic scopes like `src`, `lib`, `utils` — go one level deeper.
 - If no ticket: omit it — `feat(auth): add refresh token rotation`
 - If no clear scope: omit it — `fix: SOC-123 handle null response`
 
-Examples:
-```
-feat(auth): SOC-123 add refresh token rotation
-fix(scanner): GH-42 handle null result from scanner API
-chore(deps): upgrade knex to v3
-refactor: SOC-456 extract org context into middleware
-```
-
-**Body (optional, include for non-trivial changes):**
+**Body (include for non-trivial changes):**
 ```
 
 <blank line>
-<why this change was needed — the problem solved, not a restatement of the diff>
+<why this change was needed — the problem it solves, not a restatement of the diff>
 ```
 
-## Step 6: Show and confirm
+**Breaking change footer (required if Step 4 detected breaking changes):**
+```
+
+BREAKING CHANGE: <what broke and what callers need to do instead>
+```
+
+Examples:
+```
+feat(auth): SOC-123 add refresh token rotation
+
+Previously tokens expired with no renewal path, causing silent session
+drops after 1 hour.
+
+feat(api): GH-42 add pagination to scan results endpoint
+
+fix(scanner): handle null result from external scanner API
+
+chore(deps): upgrade knex to v3
+
+refactor!: SOC-456 rename UserContext to OrgContext
+
+BREAKING CHANGE: UserContext is now OrgContext in all imports. Update
+all `import { UserContext }` to `import { OrgContext }`.
+```
+
+## Step 7: Show and confirm
 Display the full commit message, then ask:
 "Run `git commit` with this message? (yes / edit / cancel)"
 
-- **yes** → run `git commit -m "<message>"`
-- **edit** → show the message for the user to modify, then commit
+- **yes** → run `git commit -m "<message>"` (use `-m $'...'` for multi-line with body/footer)
+- **edit** → display the raw message text for the user to modify inline, then commit
 - **cancel** → just display the message, do nothing

@@ -9,47 +9,65 @@ allowed-tools: Bash, Read, Grep, Glob
 Research the following topic thoroughly: `$ARGUMENTS`
 
 ## Step 1: Decompose the question
-Break `$ARGUMENTS` into 2-3 distinct research angles. For example:
+
+Break `$ARGUMENTS` into 2–3 distinct research angles. For example:
 - "How does X work?" → official docs + real-world patterns + known pitfalls
-- "Should we use X or Y?" → X pros/cons + Y pros/cons + our codebase fit
+- "Should we use X or Y?" → X pros/cons + Y pros/cons + fit with current codebase
+- "What's wrong with Z?" → known bugs + version history + community workarounds
+
+Determine which agents to spawn based on the question type:
+- **Always spawn:** Agent 1 (official docs)
+- **Spawn if topic relates to an existing codebase pattern:** Agent 2 (codebase exploration)
+- **Always spawn:** Agent 3 (pitfalls and edge cases)
 
 ## Step 2: Launch parallel subagents
-Spawn these agents simultaneously — do not wait for one before starting the next:
+
+Spawn the applicable agents simultaneously:
 
 **Agent 1 — Official docs & current best practices**
-- Use context7 if the topic involves a library or framework
-- Search for the authoritative/official answer
-- Find the recommended pattern as of 2025/2026
+- For libraries/frameworks: use context7 MCP to get current, version-specific documentation
+  - First: `mcp__context7__resolve-library-id` to get the library ID
+  - Then: `mcp__context7__query-docs` with a specific query
+- For current events, recent releases, or ecosystem news: use WebSearch
+- Find the authoritative/official answer for the current version
+- Note the version the documentation covers
 
-**Agent 2 — Codebase exploration**
+**Agent 2 — Codebase exploration** *(only if the topic relates to existing code)*
 - Search the current codebase for existing patterns related to the topic
 - Find how similar problems have been solved here already
 - Identify constraints from the existing architecture
+- Check `package.json`, `go.mod`, `Cargo.toml`, or equivalent to confirm the stack and versions in use
 
 **Agent 3 — Pitfalls & edge cases**
-- What are the known gotchas?
+- What are the known gotchas with this approach?
 - What do people commonly get wrong?
-- What are the performance or security implications?
+- What are the performance, security, or reliability implications?
+- Search for GitHub issues, Stack Overflow threads, or postmortems related to this
 
 ## Step 3: Synthesize findings
 
 Structure the output as:
 
 ### 📌 Summary
-Two sentences: what is the answer / recommendation?
+Two sentences: what is the answer or recommendation?
 
 ### 📚 Key findings
-Bullet points from each research angle — source each claim.
+Bullet points from each research angle. For each finding, tag its confidence:
+- `[verified]` — confirmed in official docs or source code
+- `[inferred]` — reasonable conclusion from evidence, not directly stated
+- `[speculative]` — plausible but unconfirmed, needs validation
+
+Also note source freshness where relevant: "(docs for v3.2, project uses v3.1 — check changelog for differences)"
 
 ### ⚡ Recommendation
-For this specific codebase and stack:
-What is the right approach?
+Given the current codebase, stack, and constraints (inferred from the project files):
+What is the right approach, and why?
 
 ### ⚠️ Pitfalls to avoid
-What are the top 2-3 things that could go wrong?
+The top 2–3 things that could go wrong with the recommended approach.
+
+### ❓ What we don't know
+Findings that could not be resolved through research — things that require an experiment, a decision, or more context to answer. Be explicit about gaps rather than filling them with speculation.
 
 ### 🔗 References
-Links to relevant docs, issues, or codebase files.
-
-## Step 4: Open questions
-List anything that couldn't be resolved through research and needs a decision or experiment.
+Links or file paths to relevant docs, issues, or codebase locations.
