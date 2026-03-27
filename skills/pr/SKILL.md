@@ -34,10 +34,10 @@ If neither works, default to `main` and note the assumption.
 
 Use the detected base branch for all diff/log commands below.
 
-## Step 2: Parse arguments
+## Step 2: Parse arguments and resolve template
 
 `$ARGUMENTS` can be any combination of:
-- Empty → auto-detect everything, use fallback template
+- Empty → auto-detect everything
 - Semver level → `PATCH`, `MINOR`, or `MAJOR`
 - Ticket → `GH-45`, `SOC-123`, `VUL-456`, etc.
 - `@file` reference → `@.github/pull_request_template.md` (content already in context)
@@ -46,9 +46,26 @@ Parse `$ARGUMENTS` by scanning for:
 - `PATCH|MINOR|MAJOR` → semver level
 - `GH-\d+` → GitHub issue, transform to `#<number>` for PR title
 - `[A-Z]+-\d+` (not GH) → Jira-style ticket, use as-is
-- `@...` → custom template already in context, use it directly
+- `@...` → custom template already in context, use it directly and skip detection below
 
-If no template in arguments → read fallback from [template.md](template.md).
+**Template resolution (priority order):**
+
+1. **`@file` in arguments** → use that directly, stop here.
+
+2. **Repo PR template** — check the current project directory:
+```bash
+# Single template (most common)
+cat .github/pull_request_template.md 2>/dev/null || \
+cat .github/PULL_REQUEST_TEMPLATE.md 2>/dev/null || \
+cat docs/pull_request_template.md 2>/dev/null
+
+# Multiple templates
+ls .github/PULL_REQUEST_TEMPLATE/*.md 2>/dev/null
+```
+If a single template is found → use it as the body base.
+If multiple templates are found → list them and ask: "This repo has multiple PR templates — which should I use? (list names)"
+
+3. **Skill fallback** — only if no repo template exists → use [template.md](template.md).
 
 ## Step 3: Gather context
 
