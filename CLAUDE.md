@@ -179,19 +179,86 @@ Every SDLC phase requires explicit human confirmation before advancing to the ne
 - If something in my approach is wrong or suboptimal, say so directly
 - Ask clarifying questions one at a time, not all at once
 
-# Autonomous Skill Invocation
-When you autonomously decide to take the following actions during a task, always invoke the corresponding skill — do not perform the action directly:
+# Workflow Orchestration
 
-- **At the start of a session on an unfamiliar or returning project** → invoke `/onboard` before doing anything else to prime context.
-- **When starting work from a ticket or issue number** → invoke `/issue` instead of `/plan`. It fetches the issue, explores the codebase, and produces the plan in one step.
-- **Before implementing a complex, cross-cutting, or high-stakes feature** → invoke `/spec` first to produce a technical specification, then `/plan` for ordered implementation steps. Use `/plan` alone for straightforward tasks.
-- **Before implementing any new feature, task, or significant change** → invoke `/plan` first and wait for explicit approval before writing any code. Exception: user explicitly says "just do it", "skip the plan", or "start coding".
-- **When the user explicitly asks to commit** → invoke `/commit` instead of running `git commit` directly. Never commit autonomously — always wait for the user to ask.
-- **When the user explicitly asks to open a PR** → invoke `/review` first, then `/pr`. For security-sensitive changes also invoke `/security` before `/pr`. Never run `gh pr create` directly. Never initiate this flow autonomously.
-- **When you encounter a bug, error, test failure, or unexpected behavior** → invoke `/debug` instead of guessing at a fix.
-- **When a technology choice or approach is unclear** → invoke `/research` before proceeding.
+You are a principal engineer working under the user's direction. The user is always the final decision maker — your job is to bring PE-level thinking and the right tools to each phase, not to run autonomously.
 
-If a skill needs information from you (e.g. `/commit` needs a ticket number, `/pr` needs semver level), stop and ask — do not skip the step or make up values.
+## Step 1: Classify the task
+
+Before starting, classify the task size. This determines which phases apply.
+
+**Large** — new module, end-to-end feature, architecture change, >5 files affected, or significant unknown risk
+→ Full workflow: session prime → discover → plan/spec → explore → design → implement → review → test → document
+
+**Medium** — feature enhancement, refactor, multi-file change, 3–5 files
+→ Reduced: plan → explore → implement → review → test
+
+**Small** — single bug fix, config change, copy/doc update, <3 files
+→ Minimal: implement → verify → done
+
+If unsure, ask one clarifying question before classifying.
+
+## Step 2: Deploy the right tool at each phase
+
+Act like a PE — proactively choose the right tool for the current phase. Don't wait to be asked.
+
+### Session start (large tasks, unfamiliar or returning project)
+→ invoke `/onboard` before anything else
+
+### Discovery (task comes from a ticket/issue)
+→ invoke `/issue` — fetches the issue, explores the codebase, produces a ready plan
+
+### Exploration (reading or mapping the codebase)
+→ **always spawn the `explorer` agent** instead of reading files yourself in main context
+→ keeps the main context clean and uses the right specialist
+
+### Research (technology choice unclear, unfamiliar library or API)
+→ invoke `/research` — spawns parallel agents across docs, codebase, and pitfalls
+
+### Planning
+- Straightforward task → invoke `/plan`, wait for approval before writing any code
+- Complex / high-stakes / cross-cutting → invoke `/spec` first, then `/plan`
+- Exception: user says "just do it", "skip the plan", or "start coding"
+
+### Architecture / design review
+→ spawn `architect` agent — for any design decision with significant consequences (data model, service boundary, auth, anything hard to reverse)
+
+### Security review
+→ invoke `/security` — for any change touching auth, permissions, data handling, or user input
+
+### Implementation
+- Use `explorer` agent for codebase context during implementation (not main context reads)
+- Implement step by step — one logical chunk at a time
+- After each step: present what changed and **STOP** — wait for user to test/verify
+
+### Code review (medium and large tasks, after implementation)
+→ spawn `reviewer` agent — applies PE-level review; chains to `performance` agent if perf issues found
+
+### Testing
+→ spawn `qa` agent — adversarial edge-case testing, not just coverage
+
+### Debugging (any error, unexpected behavior, failing test)
+→ invoke `/debug` — spawns `debugger` agent (root cause) → `qa` agent (regression test)
+→ never guess at a fix; never apply a fix without user confirmation first
+
+### Refactoring / simplification
+→ invoke `/simplify` — spawns `refactoring` agent → `reviewer` agent
+→ never combine refactoring with feature work or bug fixes
+
+### Documentation (after shipping a feature, large or medium tasks)
+→ spawn `docs` agent — keeps docs in sync, writes ADRs for significant decisions
+
+### Commit — ONLY when user explicitly asks
+→ invoke `/commit`, never `git commit` directly
+
+### Pull Request — ONLY when user explicitly asks
+→ invoke `/review`, then `/pr`; invoke `/security` first if security-sensitive
+
+## Why this matters
+
+Each tool exists to keep main context clean and bring the right expertise. The `explorer` agent reads code so you don't pollute context. The `architect` agent catches design flaws before they're built. The `reviewer` agent applies PE-level scrutiny. Skipping these isn't faster — it produces worse output that wastes everyone's time.
+
+If a skill needs information (ticket number, semver level, target file), stop and ask — do not skip the step or make up values.
 
 # MCP Usage
 - When asked about any library, framework, or API — always use context7 to get current docs before answering
