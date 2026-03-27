@@ -65,7 +65,10 @@ ls .github/PULL_REQUEST_TEMPLATE/*.md 2>/dev/null
 If a single template is found → use it as the body base.
 If multiple templates are found → list them and ask: "This repo has multiple PR templates — which should I use? (list names)"
 
-3. **Skill fallback** — only if no repo template exists → use [template.md](template.md).
+3. **Skill fallback** — only if no repo template exists → read and use the skill's own template:
+```bash
+cat ~/.claude/skills/pr/template.md
+```
 
 ## Step 3: Gather context
 
