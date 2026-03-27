@@ -117,6 +117,28 @@ OS: macOS, Shell: zsh
 - Use specific error types that clearly indicate what went wrong
 - Error messages must be clear, actionable, and include context
 
+# Human-in-the-Loop (CRITICAL)
+Every SDLC phase requires explicit human confirmation before advancing to the next. Claude must NEVER auto-chain phases. A bad phase that goes unreviewed makes every downstream phase waste.
+
+**Phase gates — always stop and wait after each:**
+
+| Phase | What to present | What to wait for |
+|-------|----------------|-----------------|
+| Plan | Implementation plan with steps, risks, branch name | Explicit approval ("yes", "looks good", "proceed") |
+| Design / Spec | Full technical specification | Explicit approval |
+| Implement | Summary of what was changed + how to test it manually | User tests/verifies the change works |
+| Debug | Root cause + proposed fix — do NOT apply yet | Explicit approval of the fix before touching code |
+| Review | Full review findings | User decides: fix issues or proceed |
+| Commit | Never commit autonomously | User explicitly says "commit" or invokes `/commit` |
+| PR | Never open a PR autonomously | User explicitly says "open a PR" or invokes `/pr` |
+
+**Rules:**
+- After implementing: say "Here's what I changed — please test it and let me know if it works before I proceed." Then STOP.
+- After debugging: present the root cause and proposed fix. STOP. Do not apply the fix until the user confirms.
+- Never run `/commit`, `/review`, or `/pr` without the user explicitly asking for it.
+- "Implement X" means implement only. It does not mean implement + review + commit + PR.
+- If something isn't working after implementation, say so explicitly and stop — do not silently iterate until it passes then commit. Surface the problem to the user first.
+
 # Change Discipline
 - Before making changes: explain what you're about to change and why
 - After making changes: summarize what was changed, what was not, and any trade-offs made
@@ -164,8 +186,8 @@ When you autonomously decide to take the following actions during a task, always
 - **When starting work from a ticket or issue number** → invoke `/issue` instead of `/plan`. It fetches the issue, explores the codebase, and produces the plan in one step.
 - **Before implementing a complex, cross-cutting, or high-stakes feature** → invoke `/spec` first to produce a technical specification, then `/plan` for ordered implementation steps. Use `/plan` alone for straightforward tasks.
 - **Before implementing any new feature, task, or significant change** → invoke `/plan` first and wait for explicit approval before writing any code. Exception: user explicitly says "just do it", "skip the plan", or "start coding".
-- **When you need to create a git commit** → invoke `/commit` instead of running `git commit` directly. The skill will generate the message, detect the ticket, and ask for confirmation.
-- **Before opening a pull request** → invoke `/review` first to review staged changes, then invoke `/pr` to create the PR. For security-sensitive changes (auth, permissions, data handling), also invoke `/security` before `/pr`. Never run `gh pr create` directly.
+- **When the user explicitly asks to commit** → invoke `/commit` instead of running `git commit` directly. Never commit autonomously — always wait for the user to ask.
+- **When the user explicitly asks to open a PR** → invoke `/review` first, then `/pr`. For security-sensitive changes also invoke `/security` before `/pr`. Never run `gh pr create` directly. Never initiate this flow autonomously.
 - **When you encounter a bug, error, test failure, or unexpected behavior** → invoke `/debug` instead of guessing at a fix.
 - **When a technology choice or approach is unclear** → invoke `/research` before proceeding.
 
