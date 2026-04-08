@@ -52,7 +52,9 @@ Subagents invoked via the `Agent` tool. Each defined in `agents/<name>.md` with 
 | `reviewer` | sonnet | Code review — correctness, security, pattern precedent, PE lens |
 | `qa` | sonnet | Adversarial testing — risk-based strategy, edge cases, behavior verification |
 | `refactoring` | sonnet | Structured refactoring — blast radius check, behavior preservation, one step at a time |
+| `scanner` | haiku | Pattern scanner — tech-debt markers, deprecated APIs, dead code, env var cross-referencing |
 | `performance` | haiku | Bottleneck analysis — N+1 queries, hot paths, algorithmic complexity |
+| `researcher` | sonnet | Technical research — spawns `explorer` for codebase context + web search for docs/pitfalls + synthesized findings |
 | `explorer` | haiku | Read-only codebase investigation — structure, usage, context gathering |
 | `docs` | haiku | Documentation — keep docs in sync, capture decisions (ADRs), explain why |
 
@@ -213,7 +215,7 @@ Act like a PE — proactively choose the right tool for the current phase. Don't
 → keeps the main context clean and uses the right specialist
 
 ### Research (technology choice unclear, unfamiliar library or API)
-→ invoke `/research` — spawns parallel agents across docs, codebase, and pitfalls
+→ invoke `/research` — spawns `researcher` agent, which explores the codebase via `explorer` and searches external sources in parallel
 
 ### Planning
 - Straightforward task → invoke `/plan`, wait for approval before writing any code

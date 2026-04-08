@@ -1,6 +1,6 @@
 # Agents
 
-8 specialist subagents that run in isolated context windows, spawned by skills for deep, focused work.
+10 specialist subagents that run in isolated context windows, spawned by skills for deep, focused work.
 
 ## What are agents?
 
@@ -38,7 +38,9 @@ Example chain:
 | `reviewer` | sonnet | Read, Grep, Glob, Bash, Agent | Code review — correctness, security, perf, patterns, PE lens |
 | `qa` | sonnet | Read, Write, Edit, Bash, Grep, Glob | Quality assurance — test strategy, edge cases, behavior verification |
 | `refactoring` | sonnet | Read, Write, Edit, Grep, Glob, Bash, Agent | Restructure code without behavior change — blast radius, test baseline, step-by-step |
+| `scanner` | haiku | Read, Grep, Glob, Bash | Pattern scanner — tech-debt markers, deprecated APIs, dead code, env var cross-referencing |
 | `performance` | haiku | Read, Grep, Glob, Bash | Bottleneck analysis — N+1 queries, hot paths, complexity, trade-offs |
+| `researcher` | sonnet | Read, Grep, Glob, Bash, Agent, WebSearch, WebFetch | Technical research — codebase context via explorer + external docs/pitfalls + synthesized findings with confidence tags |
 | `explorer` | haiku | Read, Grep, Glob, Bash | Read-only codebase investigation — structure, usage, context gathering |
 | `docs` | haiku | Read, Write, Edit, Grep, Glob | Documentation — keep docs in sync, capture decisions, explain why |
 
@@ -53,12 +55,12 @@ Example chain:
 | `/review` | `reviewer` | → `performance` (conditional on perf findings) |
 | `/pr` | (none) | — |
 | `/debug` | `debugger` | → `qa` (mandatory for regression test) |
-| `/research` | custom research agents | + `explorer` (for codebase patterns) |
+| `/research` | `researcher` | + `explorer` (spawned by researcher for codebase patterns) |
 | `/simplify` | `refactoring` | → `reviewer` (post-refactor validation) |
 | `/audit-deps` | (none) | — |
-| `/tech-debt` | (none) | — |
+| `/tech-debt` | `scanner` | — |
 | `/security` | (none) | — |
-| `/env-audit` | (none) | — |
+| `/env-audit` | `scanner` | — |
 | `/onboard` | `explorer` | (produces context summary) |
 
 ### Full example chain: `/debug`
