@@ -1,7 +1,7 @@
 ---
 name: review
 description: Use before committing or opening a pull request — reviews staged changes as a principal engineer for correctness, edge cases, and logic flaws. Always invoke this before creating a PR.
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Agent, Read, Grep, Glob, Bash
 ---
 
 # Code Review

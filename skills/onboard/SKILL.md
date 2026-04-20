@@ -1,7 +1,7 @@
 ---
 name: onboard
 description: Use at the start of a session on an unfamiliar or returning project — reads architecture docs, recent activity, open work, and coding conventions to prime context before starting any task. Invoke this before /plan or /issue when you haven't worked on the project recently.
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Agent, Read, Grep, Glob, Bash
 ---
 
 # Project Onboarding

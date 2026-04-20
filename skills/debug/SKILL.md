@@ -1,7 +1,7 @@
 ---
 name: debug
 description: Use when you encounter a bug, error, or unexpected behavior during a task — follows a reproduce → isolate → fix → verify cycle. Invoke this instead of guessing at a fix.
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Agent, Read, Grep, Glob, Bash
 ---
 
 # Debug

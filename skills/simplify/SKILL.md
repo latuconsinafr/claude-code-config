@@ -1,7 +1,7 @@
 ---
 name: simplify
 description: Use when a file or module has grown too complex — removes unnecessary abstractions, dead code, and over-engineering without changing behavior. Invoke after implementing a feature when the code feels over-engineered.
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Agent, Read, Grep, Glob, Bash
 ---
 
 # Simplify

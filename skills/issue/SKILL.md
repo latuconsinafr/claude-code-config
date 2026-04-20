@@ -1,7 +1,7 @@
 ---
 name: issue
 description: Use when starting work on a GitHub or Jira issue — reads the issue, explores affected code, and produces a ready-to-execute implementation plan. Invoke this at the start of any ticket-driven task instead of jumping straight to /plan.
-allowed-tools: Bash, Read, Grep, Glob
+allowed-tools: Agent, Bash, Read, Grep, Glob
 ---
 
 # Issue → Plan

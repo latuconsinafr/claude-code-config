@@ -1,7 +1,7 @@
 ---
 name: spec
 description: Use before implementing a complex, high-stakes, or cross-cutting feature — produces a full technical specification including data model, API contract, edge cases, and open questions. The planning layer above /plan. Invoke this when /plan alone isn't detailed enough.
-allowed-tools: Read, Grep, Glob, Bash
+allowed-tools: Agent, Read, Grep, Glob, Bash
 ---
 
 # Technical Specification
