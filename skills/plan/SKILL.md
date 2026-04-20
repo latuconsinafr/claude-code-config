@@ -1,7 +1,7 @@
 ---
 name: plan
 description: Use before writing any code for a new feature, task, or significant change — produces a structured implementation plan with affected files, ordered steps, risks, and open questions. Always invoke this at the start of any non-trivial implementation task and wait for explicit approval before writing code.
-allowed-tools: Read, Grep, Glob
+allowed-tools: Agent, Read, Grep, Glob, Bash
 ---
 
 # Plan
@@ -92,9 +92,49 @@ Incorporate the architect's blocking concerns into the plan before presenting. N
 
 For straightforward plans (single-file changes, UI tweaks, config updates) — skip this step.
 
-## Step 6: Confirm before proceeding
+## Step 6: Present the plan and assess E2E test case need
 
-Present the plan and ask:
-"Does this plan look right? Should I proceed with implementation, adjust anything, or do you have questions?"
+Present the full plan to the user.
+
+Then assess whether E2E test cases are needed, using this decision table:
+
+**Auto-include test cases** (generate without asking) if ALL of these are true:
+- Architect validation was triggered in Step 5 (plan is complex enough to warrant it)
+- Plan touches 2+ services or has 3+ implementation steps
+- Plan involves API endpoint changes OR DB schema changes
+
+If auto-including: append to the plan output:
+```
+---
+**Test Cases:** This plan involves [state the reasons: API changes / DB schema changes / multi-service integration]. I'll generate E2E test case documentation now using the context from this plan.
+```
+Then immediately invoke `/test-cases` with the plan context already available (no need to re-explore).
+
+---
+
+**Offer test cases** (ask the user) if ANY ONE of these is true, but auto-include criteria are not fully met:
+- Plan involves API endpoint changes (new endpoints or changed request/response shape)
+- Plan involves DB schema changes or new tables
+- Plan involves multi-service integration or queue dispatch
+- Plan description mentions testing, QA, validation, or E2E
+
+If offering: append to the plan output:
+```
+---
+**Test Cases:** This plan involves [state the reason]. Should I generate E2E test case documentation now? I already have the codebase context from this plan — it won't require re-exploration. (yes / skip)
+```
+Wait for the user's response. If "yes", invoke `/test-cases` with existing context.
+
+---
+
+**Skip test cases** if the plan is:
+- A single-file change with no API or DB impact
+- A config update, copy change, or dependency bump
+- A refactor with no behavior change
+
+In these cases, end with:
+```
+Does this plan look right? Should I proceed with implementation, adjust anything, or do you have questions?
+```
 
 Do not write any code until the plan is explicitly approved.

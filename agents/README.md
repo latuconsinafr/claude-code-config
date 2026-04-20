@@ -48,7 +48,7 @@ Example chain:
 
 | Skill | Primary agent | Secondary chain |
 |-------|---------------|-----------------|
-| `/plan` | `explorer` | → `architect` (conditional on complexity) |
+| `/plan` | `explorer` | → `architect` (conditional) → `/test-cases` (offered or auto if complex + multi-service + API/DB changes) |
 | `/spec` | `explorer` | → `architect` (mandatory for validation) |
 | `/issue` | `explorer` | (produces plan at end) |
 | `/commit` | (none) | — |
@@ -62,6 +62,7 @@ Example chain:
 | `/security` | (none) | — |
 | `/env-audit` | `scanner` | — |
 | `/onboard` | `explorer` | (produces context summary) |
+| `/test-cases` | `explorer` (standalone mode only) | reuses `/plan` context when available; falls back to git diff + explorer |
 
 ### Full example chain: `/debug`
 

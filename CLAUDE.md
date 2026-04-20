@@ -26,7 +26,7 @@ Invoked as slash commands. Each skill lives in `skills/<name>/SKILL.md`.
 | Skill | Purpose |
 |-------|---------|
 | `/commit` | Conventional commit message from staged changes (`feat(scope)!: TICKET description`) |
-| `/plan` | Structured implementation plan before writing code |
+| `/plan` | Structured implementation plan before writing code — conditionally offers or auto-generates E2E test cases for complex plans |
 | `/review` | Principal-engineer code review — correctness, security, performance, test coverage |
 | `/pr` | GitHub PR with semver-prefixed title (`[PATCH/MINOR/MAJOR] TICKET: desc`) |
 | `/debug` | Reproduce → isolate → structured hypothesis → fix → regression test |
@@ -39,6 +39,7 @@ Invoked as slash commands. Each skill lives in `skills/<name>/SKILL.md`.
 | `/spec` | Full technical specification — data model, API contract, edge cases |
 | `/env-audit` | Audit all env var references vs. sources across code, Docker, CI, config |
 | `/onboard` | Session-start context primer — architecture, recent activity, open work |
+| `/test-cases` | Generate E2E test case document — explores codebase for real endpoints/tables, produces structured markdown with reproduction flows and multi-env checkboxes |
 
 To add a new skill: create `skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`, `allowed-tools`) and a markdown prompt body using `$ARGUMENTS` for user input.
 
