@@ -109,7 +109,4 @@ for the closed-out `[PENDING]` date(s) and `sodDone: true` for today. Confirm ev
 `eod/SKILL.md` Step 7 and `sod/SKILL.md` Step 6 actually landed — if any call failed partway
 through either half, say so explicitly rather than treating the night as fully recorded.
 
-**Same documented gap as `eod/SKILL.md`:** the EOD narrative (verdict-quality labels, learning
-note, rule-consistent decisions) has no MCP write target yet — it exists in tonight's
-conversation only. Once this session is closed out, it's over — no re-checking charts before
-tomorrow's 21:00.
+Once this session is closed out, it's over — no re-checking charts before tomorrow's 21:00.

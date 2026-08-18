@@ -20,14 +20,6 @@ used elsewhere in this file and in CLAUDE.md — confirmed by an actual rejected
 `sod/SKILL.md`'s smoke test. Translate before every call: EU → `EURUSD`, GU → `GBPUSD`,
 UJ → `USDJPY`, XAU → `XAUUSD`.
 
-**A known, documented gap in this migration:** the old `eod_review.md` held free-form narrative —
-per-instrument verdict-quality labels, the optional learning note, rule-consistent-decisions with
-no scoring line. None of the 22 MCP tools have a slot for that narrative; the closest fields
-(`write_compliance_score`'s `deviationNote`) are too narrow. Until a proper write tool exists for
-this, Step 6 below still produces the narrative in conversation (so the review itself isn't lost)
-but it has **no persistent home** — say this plainly to the pilot rather than implying it was
-saved. Worth a `webapp/TODO.md` entry; not solved in this pass.
-
 ## Step 0 — confirm the MCP server is reachable
 
 Same as `sod/SKILL.md` Step 0 — call `get_account_state` first. If it fails, stop, explain
@@ -151,10 +143,15 @@ Do NOT propose rule changes here — CLAUDE.md §21.3 instead.
    resolve item 10 ("managed per that convention") for the same trade, using its real `tradeId`
    so this updates the existing row rather than duplicating. If items 9/10 were never written at
    open time, say so in `deviationNote` rather than marking them MET.
-3. **`mark_session`** — `eodDone: true` for `[PENDING]`. For a MISSED day: `sodDone: false,
-   eodDone: false` — **never `true`, regardless of how much later this runs.** The one call in
-   this file that must never flip to done.
-4. **`attach_chart`** — any EOD-specific M15 captures from Step 4, by path (same cross-machine
+3. **`write_verdict_review`** — once per instrument, all four, for `[PENDING]` (including no-trade
+   days) — Step 6.3's decision/outcome labels. Requires a `write_daily_analysis` row already on
+   file for that instrument/date (SOD wrote it); if none exists, say so rather than guessing at
+   what the verdict was.
+4. **`mark_session`** — `eodDone: true` for `[PENDING]`, plus `learningNote` (Step 6.4, if
+   anything was noted) and `ruleConsistentNotes` (Step 6.5, if any). For a MISSED day: `sodDone:
+   false, eodDone: false` — **never `true`, regardless of how much later this runs.** The one call
+   in this file that must never flip to done.
+5. **`attach_chart`** — any EOD-specific M15 captures from Step 4, by path (same cross-machine
    caveat as `sod/SKILL.md` Step 3).
 
 If any call fails partway through, stop and report exactly which succeeded and which didn't.
