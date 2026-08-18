@@ -100,15 +100,12 @@ inform. Check, in order:
   is deliberate (see Step 5.1); skipping it means anchoring to the pilot's markup instead of
   forming an independent read.
 
-**Optional, separate from the required 12 — heatmap prep, not a §2 change.** CLAUDE.md §2's
-daily-reviewed timeframes (D1/H4/M15) are unaffected by this and stay exactly as written; this is
-capture for a different, not-yet-built feature (the dashboard heatmap's real technical scores —
-see `webapp/TODO.md`). If a 1H clean chart per instrument is available (`charts/[DATE]/{SYMBOL}H1.png`,
-matching the existing `{SYMBOL}Daily/H4/M15.png` convention — `{SYMBOL}` being the full pair code
-per the mapping table above, e.g. `EURUSDH1.png`), note that it's on disk for later use. **Do not
-ask the pilot to capture it and do not block the session on it** — no write tool consumes it yet
-(`write_technical_score` doesn't exist), so asking for it today would be session overhead for a
-feature with no payoff. Revisit this note once that tool exists; then this becomes a real ask.
+**1H capture stays optional, separate from the required 12 — not a §2 change.** CLAUDE.md §2's
+daily-reviewed timeframes (D1/H4/M15) are unaffected and stay exactly as written. If a 1H clean
+chart per instrument happens to be available (`charts/[DATE]/{SYMBOL}H1.png`, matching the
+existing `{SYMBOL}Daily/H4/M15.png` convention), read it and call `write_technical_score` for it
+too (Step 6). **Do not ask the pilot to capture 1H specifically** — D1/H4/M15 are the only charts
+this session actually requires; 1H is a bonus if it's already there, not a new ask.
 
 ## Step 4 — get the pilot's thesis
 
@@ -167,7 +164,16 @@ call here uses values that actually came out of Step 5.
 7. **`attach_chart`** — once per screenshot actually read this session (up to 12), by the path it
    was read from in Step 3. Never re-paste an image just to attach it. If the path isn't readable
    by the MCP server (cross-machine case, see Step 3), say so rather than silently skipping.
-8. **`mark_session`** — `sodDone: true` for today's date.
+8. **`write_technical_score`** — once per instrument per timeframe actually read in Step 5.1 (D1,
+   H4, M15 — all four instruments; plus 1H if it happened to be captured). This is not new
+   analysis — it's the same structural read from Step 5.1, translated into a -100..100 number
+   (fundamentals are computed server-side, never passed in). Rough band alignment with the
+   heatmap's own labels: ≥50 Strong Bullish, 20-49 Bullish, -19..19 Neutral, -50..-21 Bearish,
+   ≤-50 Strong Bearish — direction and conviction from the actual read, not a fixed formula.
+   **Never call this for a pair not actually charted this session** — the whole point is
+   replacing fabricated placeholder scores with real ones, not adding new fabricated ones for the
+   26 pairs outside the daily routine.
+9. **`mark_session`** — `sodDone: true` for today's date.
 
 ## Step 7 — the Pre-Trade Check
 
