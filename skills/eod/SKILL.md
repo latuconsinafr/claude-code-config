@@ -71,11 +71,11 @@ evening as tomorrow's SOD). Keep these separate throughout.
 ## Step 3 — work out which charts are required, before asking for anything
 
 Call **`get_open_positions`** (any still `OPEN`), **`get_pending_hypotheticals`** (any pending
-"wait for level" verdict), and **`get_daily_analysis`** for `[PENDING]` per instrument — its
-`checklistReasoning`/`verdictReason` text is the primary source for whether `[PENDING]` carried a
-flagged event-risk window, since **there is no dedicated read tool for calendar events** (a real
-gap — `write_calendar_event` exists, `get_calendar_events` doesn't). If the stored reasoning
-doesn't make this clear, ask the pilot directly rather than guessing.
+"wait for level" verdict), and **`get_calendar_events`** for `[PENDING]` (no `currency` filter —
+check all four) to determine whether it carried a red-folder release. If nothing is on file for
+that date, fall back to `get_daily_analysis`'s `checklistReasoning`/`verdictReason` text — SOD
+sessions before 2026-08-18 predate this tool and may only have it recorded there. If neither
+source makes it clear, ask the pilot directly rather than guessing.
 
 State the requirement plainly before asking for anything:
 - **D1 + H4 × all four instruments** — always required.
