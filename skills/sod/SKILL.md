@@ -100,6 +100,16 @@ inform. Check, in order:
   is deliberate (see Step 5.1); skipping it means anchoring to the pilot's markup instead of
   forming an independent read.
 
+**Optional, separate from the required 12 — heatmap prep, not a §2 change.** CLAUDE.md §2's
+daily-reviewed timeframes (D1/H4/M15) are unaffected by this and stay exactly as written; this is
+capture for a different, not-yet-built feature (the dashboard heatmap's real technical scores —
+see `webapp/TODO.md`). If a 1H clean chart per instrument is available (`charts/[DATE]/{SYMBOL}H1.png`,
+matching the existing `{SYMBOL}Daily/H4/M15.png` convention — `{SYMBOL}` being the full pair code
+per the mapping table above, e.g. `EURUSDH1.png`), note that it's on disk for later use. **Do not
+ask the pilot to capture it and do not block the session on it** — no write tool consumes it yet
+(`write_technical_score` doesn't exist), so asking for it today would be session overhead for a
+feature with no payoff. Revisit this note once that tool exists; then this becomes a real ask.
+
 ## Step 4 — get the pilot's thesis
 
 Ask once, plainly: *"What's your thesis for each instrument today?"* — and wait. **Do not
