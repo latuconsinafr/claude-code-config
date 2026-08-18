@@ -16,6 +16,11 @@ governs trading through tomorrow night's session. So the EOD half of tonight's s
 a **different, earlier calendar date** than the SOD half opens. Running EOD before SOD also means
 tonight's fresh verdict is informed by how the prior one actually played out.
 
+**Instrument code mapping** — this file uses EU/GU/UJ/XAU shorthand like CLAUDE.md does, but any
+MCP call (made via the composed `sod`/`eod` steps below) needs the full pair code: EU → `EURUSD`,
+GU → `GBPUSD`, UJ → `USDJPY`, XAU → `XAUUSD`. See `sod/SKILL.md`'s header for how this was found
+(a rejected call during its own smoke test, 2026-08-18).
+
 ## Step 0 — check what day it actually is
 
 **The forex market is closed Saturday and most of Sunday.**

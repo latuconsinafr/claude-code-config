@@ -25,6 +25,18 @@ CLAUDE.md §21.3 (a short row in the parked-observations table) — **do not act
 changes belong at quarter boundaries (§13). This is the one legitimate edit this skill makes to
 CLAUDE.md itself; nothing else in this file writes to it.
 
+**Instrument code mapping — required for every MCP call below, verified empirically 2026-08-18.**
+CLAUDE.md and this file use the shorthand EU/GU/UJ/XAU throughout for readability, but every MCP
+tool's `instrument` parameter is a full pair-code enum (`EURUSD`, not `EU`) — confirmed by an
+actual rejected call during this skill's own smoke test. Translate before every call:
+
+| Shorthand | MCP `instrument` value |
+|---|---|
+| EU | `EURUSD` |
+| GU | `GBPUSD` |
+| UJ | `USDJPY` |
+| XAU | `XAUUSD` |
+
 ## Step 0 — confirm the MCP server is actually reachable
 
 **Do this before anything else.** There is no markdown fallback anymore — if the MCP server is

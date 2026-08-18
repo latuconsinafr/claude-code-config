@@ -14,6 +14,12 @@ remains the rulebook; Section numbers below point there.
 **If anything this session suggests a rule should change**, per CLAUDE.md §20.14: add it to
 CLAUDE.md §21.3, do not act on it. Rule changes belong at quarter boundaries (§13).
 
+**Instrument code mapping — required for every MCP call below, verified empirically 2026-08-18.**
+Every MCP tool's `instrument` parameter is a full pair-code enum, not the EU/GU/UJ/XAU shorthand
+used elsewhere in this file and in CLAUDE.md — confirmed by an actual rejected call during
+`sod/SKILL.md`'s smoke test. Translate before every call: EU → `EURUSD`, GU → `GBPUSD`,
+UJ → `USDJPY`, XAU → `XAUUSD`.
+
 **A known, documented gap in this migration:** the old `eod_review.md` held free-form narrative —
 per-instrument verdict-quality labels, the optional learning note, rule-consistent-decisions with
 no scoring line. None of the 22 MCP tools have a slot for that narrative; the closest fields
